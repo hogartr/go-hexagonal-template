@@ -1,0 +1,34 @@
+# sqlc.yaml
+version: "2"
+
+sql:
+  - schema: "internal/infrastructure/db/schema.sql"
+    queries: "internal/infrastructure/db/queries.sql"
+    engine: "sqlite"
+    gen:
+      go:
+        package: "db"
+        out: "internal/infrastructure/db"
+        sql_package: "database/sql"
+        emit_json_tags: true
+        emit_empty_slices: true
+        emit_result_struct_pointers: true
+        overrides:
+          # 1. UUID for id column
+          - column: "users.id"
+            go_type:
+              import: "github.com/google/uuid"
+              type: "UUID"
+
+          # 2. time.Time for created_at
+          - column: "users.created_at"
+            go_type: "time.Time"
+
+          # 3. time.Time for updated_at
+          - column: "users.updated_at"
+            go_type: "time.Time"
+
+          # 4. sql.NullTime for deleted_at (nullable)
+          - column: "users.deleted_at"
+            go_type: "database/sql.NullTime"
+            nullable: true
