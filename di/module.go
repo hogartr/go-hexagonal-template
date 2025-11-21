@@ -23,6 +23,7 @@ var Module = fx.Options(
 	// 4. Use Cases
 	fx.Provide(
 		usecase.NewCreateUserUseCase,
+		usecase.NewGetUserUseCase,
 	),
 
 	// 5. Handlers & Server

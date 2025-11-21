@@ -1,6 +1,6 @@
 -- schema/schema.sql
 CREATE TABLE IF NOT EXISTS users (
-    id         UUID PRIMARY KEY,
+    id         TEXT PRIMARY KEY,
     name       TEXT NOT NULL,
     email      TEXT NOT NULL UNIQUE,
     deleted_at TEXT,

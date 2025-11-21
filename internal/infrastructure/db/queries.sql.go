@@ -8,9 +8,6 @@ package db
 import (
 	"context"
 	"database/sql"
-	"time"
-
-	"github.com/google/uuid"
 )
 
 const createUser = `-- name: CreateUser :exec
@@ -20,11 +17,11 @@ VALUES (?, ?, ?, ?, ?)
 `
 
 type CreateUserParams struct {
-	ID        uuid.UUID `json:"id"`
-	Name      string    `json:"name"`
-	Email     string    `json:"email"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID        string `json:"id"`
+	Name      string `json:"name"`
+	Email     string `json:"email"`
+	CreatedAt string `json:"created_at"`
+	UpdatedAt string `json:"updated_at"`
 }
 
 // queries/user.sql
@@ -46,7 +43,7 @@ WHERE id = ?
 `
 
 // admin-only
-func (q *Queries) GetDeletedUser(ctx context.Context, id uuid.UUID) (*User, error) {
+func (q *Queries) GetDeletedUser(ctx context.Context, id string) (*User, error) {
 	row := q.db.QueryRowContext(ctx, getDeletedUser, id)
 	var i User
 	err := row.Scan(
@@ -66,7 +63,7 @@ FROM users
 WHERE id = ? AND deleted_at IS NULL
 `
 
-func (q *Queries) GetUser(ctx context.Context, id uuid.UUID) (*User, error) {
+func (q *Queries) GetUser(ctx context.Context, id string) (*User, error) {
 	row := q.db.QueryRowContext(ctx, getUser, id)
 	var i User
 	err := row.Scan(
@@ -84,7 +81,7 @@ const hardDeleteUser = `-- name: HardDeleteUser :exec
 DELETE FROM users WHERE id = ?
 `
 
-func (q *Queries) HardDeleteUser(ctx context.Context, id uuid.UUID) error {
+func (q *Queries) HardDeleteUser(ctx context.Context, id string) error {
 	_, err := q.db.ExecContext(ctx, hardDeleteUser, id)
 	return err
 }
@@ -96,9 +93,9 @@ WHERE id = ? AND deleted_at IS NULL
 `
 
 type SoftDeleteUserParams struct {
-	DeletedAt sql.NullTime `json:"deleted_at"`
-	UpdatedAt time.Time    `json:"updated_at"`
-	ID        uuid.UUID    `json:"id"`
+	DeletedAt sql.NullString `json:"deleted_at"`
+	UpdatedAt string         `json:"updated_at"`
+	ID        string         `json:"id"`
 }
 
 func (q *Queries) SoftDeleteUser(ctx context.Context, arg SoftDeleteUserParams) error {
@@ -113,10 +110,10 @@ WHERE id = ? AND deleted_at IS NULL
 `
 
 type UpdateUserParams struct {
-	Name      string    `json:"name"`
-	Email     string    `json:"email"`
-	UpdatedAt time.Time `json:"updated_at"`
-	ID        uuid.UUID `json:"id"`
+	Name      string `json:"name"`
+	Email     string `json:"email"`
+	UpdatedAt string `json:"updated_at"`
+	ID        string `json:"id"`
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {

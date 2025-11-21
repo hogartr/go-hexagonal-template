@@ -3,9 +3,6 @@ package db
 import (
 	"context"
 	"database/sql"
-	"time"
-
-	"github.com/google/uuid"
 
 	"github.com/hogartr/go-hexagonal-template/internal/domain"
 )
@@ -23,7 +20,7 @@ func NewUserRepo(dbConn *sql.DB) domain.UserRepository {
 }
 
 func (r *userRepo) Get(ctx context.Context, id domain.UserID) (*domain.User, error) {
-	dbUser, err := r.q.GetUser(ctx, uuid.UUID(id))
+	dbUser, err := r.q.GetUser(ctx, id.String())
 	if err != nil {
 		return nil, err
 	}
@@ -38,43 +35,60 @@ func (r *userRepo) Update(ctx context.Context, user *domain.User) error {
 	return r.q.UpdateUser(ctx, UpdateUserParamsFromDomain(user))
 }
 
-func (r *userRepo) SoftDelete(ctx context.Context, id domain.UserID, now time.Time) error {
+func (r *userRepo) SoftDelete(ctx context.Context, id domain.UserID, now domain.Date) error {
 	return r.q.SoftDeleteUser(ctx, SoftDeleteUserParams{
-		ID:        uuid.UUID(id),
-		DeletedAt: sql.NullTime{Time: now, Valid: true},
+		ID:        id.String(),
+		DeletedAt: sql.NullString{String: now.String(), Valid: true},
 	})
 }
 
 // Converts db.User to domain.User
 func (u *User) ToDomain() *domain.User {
+	id, err := domain.ParseUserId(u.ID)
+	if err != nil {
+		return nil
+	}
+	createdAt, err := domain.ParseDate(u.CreatedAt)
+	if err != nil {
+		return nil
+	}
+	updatedAt, err := domain.ParseDate(u.UpdatedAt)
+	if err != nil {
+		return nil
+	}
 	domainUser := &domain.User{
-		ID:        domain.UserID(u.ID),
+		ID:        id,
 		Name:      u.Name,
 		Email:     u.Email,
-		CreatedAt: u.CreatedAt,
-		UpdatedAt: u.UpdatedAt,
+		CreatedAt: createdAt,
+		UpdatedAt: updatedAt,
 	}
-	if u.DeletedAt.Valid {
-		domainUser.DeletedAt = &u.DeletedAt.Time
+
+	if u.DeletedAt.String != "" {
+		deletedAt, err := domain.ParseDate(u.DeletedAt.String)
+		if err != nil {
+			return nil
+		}
+		domainUser.DeletedAt = &deletedAt
 	}
 	return domainUser
 }
 
 func CreateUserParamsFromDomain(user *domain.User) CreateUserParams {
 	return CreateUserParams{
-		ID:        uuid.UUID(user.ID),
+		ID:        user.ID.String(),
 		Name:      user.Name,
 		Email:     user.Email,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
+		CreatedAt: user.CreatedAt.String(),
+		UpdatedAt: user.UpdatedAt.String(),
 	}
 }
 
 func UpdateUserParamsFromDomain(user *domain.User) UpdateUserParams {
 	return UpdateUserParams{
-		ID:        uuid.UUID(user.ID),
+		ID:        user.ID.String(),
 		Name:      user.Name,
 		Email:     user.Email,
-		UpdatedAt: user.UpdatedAt,
+		UpdatedAt: user.UpdatedAt.String(),
 	}
 }

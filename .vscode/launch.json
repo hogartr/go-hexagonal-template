@@ -1,0 +1,33 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug with Make Dev",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/cmd/server",
+      "env": {
+        "DB_TYPE": "sqlite3",
+        "DB_DSN": "file::memory:?cache=shared",
+        "GRPC_PORT": "50052",
+        "ENVIRONMENT": "development",
+        "ENV": "development"
+      },
+      "args": [],
+      "showLog": true,
+      "trace": "verbose",
+      "preLaunchTask": "make-dev"
+    },
+    {
+      "name": "Run Tests",
+      "type": "go",
+      "request": "launch",
+      "mode": "test",
+      "program": "${workspaceFolder}/...",
+      "args": [
+        "-v"
+      ]
+    }
+  ]
+}

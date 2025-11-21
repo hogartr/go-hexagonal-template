@@ -28,7 +28,7 @@ func NewCreateUserUseCase(repo domain.UserRepository, clock clock.Clock) *Create
 
 func (uc *CreateUserUseCase) Execute(ctx context.Context, cmd CreateUserCmd) (*domain.User, error) {
 	id := domain.NewUserId()
-	now := uc.clock.Now().UTC()
+	now := uc.clock.Now()
 
 	user := domain.NewUser(id, cmd.Name, cmd.Email, now)
 

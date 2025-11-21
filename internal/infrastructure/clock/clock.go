@@ -1,18 +1,22 @@
 package clock
 
-import "time"
+import (
+	"time"
+
+	"github.com/hogartr/go-hexagonal-template/internal/domain"
+)
 
 type Clock interface {
-	Now() time.Time
+	Now() domain.Date
 }
 
 type realClock struct{}
 
-func (rc *realClock) Now() time.Time { return time.Now() }
+func (rc *realClock) Now() domain.Date { return domain.Date(time.Now()) }
 
-type fakeClock struct{ now time.Time }
+type fakeClock struct{ now domain.Date }
 
-func (fc *fakeClock) Now() time.Time { return fc.now }
+func (fc *fakeClock) Now() domain.Date { return fc.now }
 
 // compile-time interface assertions
 var _ Clock = (*realClock)(nil)
@@ -22,6 +26,6 @@ func NewRealClock() Clock {
 	return &realClock{}
 }
 
-func NewFakeClock(t time.Time) Clock {
+func NewFakeClock(t domain.Date) Clock {
 	return &fakeClock{now: t}
 }

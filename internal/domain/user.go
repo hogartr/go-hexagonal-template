@@ -7,6 +7,7 @@ import (
 )
 
 type UserID uuid.UUID
+type Date time.Time
 
 // Helpers
 func NewUserId() UserID {
@@ -23,18 +24,31 @@ func (id UserID) String() string {
 	return uuid.UUID(id).String()
 }
 
+func ParseDate(s string) (Date, error) {
+	t, err := time.Parse(time.RFC3339, s)
+	return Date(t), err
+}
+
+func (d Date) String() string {
+	return time.Time(d).Format(time.RFC3339)
+}
+
+func (d Date) ToTime() time.Time {
+	return time.Time(d)
+}
+
 // Entity
 type User struct {
 	ID        UserID
 	Name      string
 	Email     string
-	DeletedAt *time.Time
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	DeletedAt *Date
+	CreatedAt Date
+	UpdatedAt Date
 }
 
 // Constructor
-func NewUser(id UserID, name, email string, now time.Time) *User {
+func NewUser(id UserID, name, email string, now Date) *User {
 	return &User{
 		ID:        id,
 		Name:      name,
@@ -45,21 +59,21 @@ func NewUser(id UserID, name, email string, now time.Time) *User {
 }
 
 // Getters
-func (u *User) GetID() UserID            { return u.ID }
-func (u *User) GetName() string          { return u.Name }
-func (u *User) GetEmail() string         { return u.Email }
-func (u *User) GetDeletedAt() *time.Time { return u.DeletedAt }
-func (u *User) GetCreatedAt() time.Time  { return u.CreatedAt }
-func (u *User) GetUpdatedAt() time.Time  { return u.UpdatedAt }
+func (u *User) GetID() UserID       { return u.ID }
+func (u *User) GetName() string     { return u.Name }
+func (u *User) GetEmail() string    { return u.Email }
+func (u *User) GetDeletedAt() *Date { return u.DeletedAt }
+func (u *User) GetCreatedAt() Date  { return u.CreatedAt }
+func (u *User) GetUpdatedAt() Date  { return u.UpdatedAt }
 
 // Mutations
-func (u *User) Update(name, email string, now time.Time) {
+func (u *User) Update(name, email string, now Date) {
 	u.Name = name
 	u.Email = email
 	u.UpdatedAt = now
 }
 
-func (u *User) SoftDelete(now time.Time) {
+func (u *User) SoftDelete(now Date) {
 	u.DeletedAt = &now
 	u.UpdatedAt = now
 }

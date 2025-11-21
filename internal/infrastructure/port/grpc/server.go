@@ -21,7 +21,7 @@ func NewGRPCServer(lc fx.Lifecycle, cfg config.Config, userHandler *UserServer) 
 		OnStart: func(ctx context.Context) error {
 			lis, err := net.Listen("tcp", addr)
 			if err != nil {
-				return fmt.Errorf("failed to listen on %s: %w", addr)
+				return fmt.Errorf("failed to listen on %s: %w", addr, err)
 			}
 			fmt.Printf("gRPC server listening on %s (env: %s)\n", addr, cfg.Environment)
 			go srv.Serve(lis)
